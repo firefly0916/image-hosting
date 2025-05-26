@@ -8,7 +8,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 template_dir = os.path.abspath(os.path.join(current_dir, '..', 'templates'))
 app = Flask(__name__, template_folder=template_dir)
 
-TG_BOT_TOKEN = '8011530044:AAGCl0SIGzX5N2paXH2xHvCmzDUCJj3U9To'
+TG_BOT_TOKEN = ''
 TG_CHAT_ID = ''
 DB_PATH = os.path.join(current_dir, 'images.db')
 IMG_DIR = os.path.join(current_dir, 'img')
