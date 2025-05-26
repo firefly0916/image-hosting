@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head><title>Upload Image</title></head>
+<body>
+<h2>Upload Image to Telegram</h2>
+<input type="file" id="fileInput">
+<button onclick="upload()">Upload</button>
+<p id="result"></p>
+
+<script>
+async function upload() {
+    const fileInput = document.getElementById('fileInput');
+    if (!fileInput.files.length) {
+        alert('Please select a file!');
+        return;
+    }
+    let file = fileInput.files[0];
+    let formData = new FormData();
+    formData.append('file', file);
+
+    let res = await fetch('/upload', {
+        method: 'POST',
+        body: formData
+    });
+    let data = await res.json();
+    if(data.success){
+        document.getElementById('result').innerHTML = `<a href="${data.file_url}" target="_blank">${data.file_url}</a>`;
+    } else {
+        document.getElementById('result').textContent = 'Error: ' + data.error;
+    }
+}
+</script>
+</body>
+</html>
