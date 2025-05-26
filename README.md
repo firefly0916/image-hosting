@@ -55,7 +55,7 @@ image-hosting/
    ```
 
 3. Set up environment variables:
-   Create a `.env` file in the root directory with the following content:
+   Copy `.env.example` file to `.env` in the root directory with the following content:
    ```
    TG_BOT_TOKEN=your_telegram_bot_token
    ```
