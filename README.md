@@ -28,27 +28,30 @@ image-hosting/
 ├── README.md                  # Project documentation
 ├── pyproject.toml             # Python project configuration
 ├── uv.lock                    # Dependency lock file
+├── .env                       # Environment variables
+├── LICENSE                    # License file
 ```
 
 ## Installation
 
 ### Prerequisites
 
-- Python 3.10+
-- Node.js (for frontend development, optional)
+- Python 3.13
 - Telegram Bot Token (create a bot via [BotFather](https://core.telegram.org/bots#botfather))
 
 ### Steps
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/image-hosting.git
+   git clone https://github.com/firefly0916/image-hosting
    cd image-hosting
    ```
 
 2. Install Python dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install uv
+   uv venv
+   uv sync
    ```
 
 3. Set up environment variables:
