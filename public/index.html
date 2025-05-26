@@ -9,10 +9,11 @@
   <div class="container">
     <h1>Telegram Upload</h1>
     <form id="uploadForm">
-    <input type="file" name="file" required />
-    <button type="button" id="uploadBtn">Upload</button>
+      <label for="fileInput" class="file-label">Choose an image to upload:</label>
+      <input type="file" id="fileInput" name="file" required />
+      <button type="button" id="uploadBtn" class="btn">Upload</button>
     </form>
-    <div id="result"></div>
+    <div id="result" class="result-box"></div>
   </div>
   <script src="app.js"></script>
 </body>
