@@ -7,14 +7,15 @@ from dotenv import load_dotenv
 from datetime import datetime
 import uuid
 from fastapi.responses import StreamingResponse, JSONResponse
-load_dotenv()
 
+app = FastAPI()
+
+load_dotenv()
 TG_BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
+CUSTOM_DOMAIN = os.getenv('CUSTOM_DOMAIN', 'localhost')
 
 tg_bot = TelegramBot(TG_BOT_TOKEN)
 db = Database()
-
-app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,7 +40,9 @@ async def upload_image(file: UploadFile = File(...)):
         # Generate UUID
         file_uuid = str(uuid.uuid4())
 
-        db.insert_file_record(file_name, url, year, month, day, file_uuid)
+        custom_url = f"https://example.com/files/{year}/{month}/{day}/{file_uuid}"
+
+        db.insert_file_record(file_name, url, year, month, day, file_uuid, )
 
         return {"message": "Upload successful", "url": url}
     except Exception as e:
