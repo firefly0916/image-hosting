@@ -65,6 +65,10 @@ async function fetchFiles() {
         <td>${file[1]}</td>
         <td><a href="${file[2]}" target="_blank">${file[2]}</a></td>
         <td>${file[3]}</td>
+        <td>${file[4]}</td>
+        <td>${file[5]}</td>
+        <td>${file[6]}</td>
+        <td>${file[7]}</td>
       `;
       tableBody.appendChild(row);
     });
