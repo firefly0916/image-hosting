@@ -69,7 +69,7 @@ async function fetchFiles() {
         <td>${file[5]}</td>
         <td>${file[6]}</td>
         <td>${file[7]}</td>
-        <td>${file[8]}</td>
+        <td>${file[10]}</td>
         <td><button class="delete-btn" data-id="${file[0]}">Delete</button></td>
       `;
       tableBody.appendChild(row);

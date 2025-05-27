@@ -19,13 +19,13 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 filename TEXT NOT NULL,
                 url TEXT NOT NULL,
-                file_id TEXT,
-                message_id TEXT,
                 year INTEGER,
                 month INTEGER,
                 day INTEGER,
                 uuid TEXT NOT NULL,
                 custom_url TEXT,
+                file_id TEXT,
+                message_id TEXT,
                 upload_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -49,7 +49,7 @@ class Database:
         conn.close()
         return records
 
-    def get_file_record(self, record_id):
+    def get_file_record_by_id(self, record_id):
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
         c.execute('SELECT * FROM files WHERE id = ?', (record_id,))
