@@ -24,6 +24,8 @@ class Database:
                 day INTEGER,
                 uuid TEXT NOT NULL,
                 custom_url TEXT,
+                file_id TEXT,
+                message_id TEXT,
                 upload_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -31,11 +33,11 @@ class Database:
         conn.close()
         print("[INFO] Database initialized.")
 
-    def insert_file_record(self, filename, url, year, month, day, file_uuid, custom_url):
+    def insert_file_record(self, filename, url, year, month, day, file_uuid, custom_url, file_id=None, message_id=None):
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
-        c.execute('INSERT INTO files (filename, url, year, month, day, uuid, custom_url) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-                  (filename, url, year, month, day, file_uuid, custom_url))
+        c.execute('INSERT INTO files (filename, url, year, month, day, uuid, custom_url, file_id, message_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                  (filename, url, year, month, day, file_uuid, custom_url, file_id, message_id))
         conn.commit()
         conn.close()
 
@@ -46,6 +48,14 @@ class Database:
         records = c.fetchall()
         conn.close()
         return records
+
+    def get_file_record_by_id(self, record_id):
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        c.execute('SELECT * FROM files WHERE id = ?', (record_id,))
+        record = c.fetchone()
+        conn.close()
+        return record
 
     def update_file_record(self, record_id, filename=None, url=None):
         conn = sqlite3.connect(self.db_path)

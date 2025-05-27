@@ -8,36 +8,49 @@ class TelegramBot:
         self.bot_token = bot_token
         self.base_url = f'https://api.telegram.org/bot{self.bot_token}'
 
-    def send_file_to_telegram(self, file_stream) -> tuple:
+    def send_file_to_telegram(self, file_stream, file_name=None) -> tuple:
         """
-        Upload a file to Telegram and return its file_id, file name, and URL.
+        Upload a file to Telegram and return its file_id, file name, file_url, and message_id.
         :param file_stream: A file-like object (e.g., opened in binary mode).
-        :return: A tuple containing (file_id, file_name, file_url).
+        :param file_name: The original file name from the user upload.
+        :return: A tuple containing (file_id, file_name, file_url, message_id).
         """
         if not file_stream or not hasattr(file_stream, 'read'):
             raise ValueError("Invalid file stream provided.")
 
-        # Extract the original file name from the file stream
-        file_name = getattr(file_stream, 'name', 'unknown')
-        if file_name == 'unknown':
-            raise ValueError("File stream must have a valid 'name' attribute.")
+        # Use provided file_name or fallback to file_stream.name
+        if not file_name:
+            file_name = getattr(file_stream, 'name', 'unknown')
+        if not file_name or file_name == 'unknown':
+            raise ValueError("File stream must have a valid 'name' attribute or file_name parameter.")
         print(f"[INFO] File name: {file_name}")
         url = f'{self.base_url}/sendDocument'
-        files = {'document': file_stream}  # Include the original file name
+        files = {'document': (file_name, file_stream)}
         data = {'chat_id': self.get_chat_id()}
         response = requests.post(url, files=files, data=data)
         result = response.json()
         if not result.get('ok'):
             raise Exception(f"Upload failed: {result}")
         doc = result['result'].get('document')
-        if not doc:
-            raise Exception(f"Document info missing: {result}")
-        file_id = doc['file_id']
-        ret_url = self.get_file_url(file_id)  # Ensure the file is uploaded and we can get its URL
+        if doc:
+            file_id = doc['file_id']
+            file_name_return = doc.get('file_name', file_name)
+        else:
+            # 兼容 sticker 类型
+            sticker = result['result'].get('sticker')
+            if sticker:
+                file_id = sticker['file_id']
+                # 优先用传入的 file_name（即用户原始文件名），否则 fallback
+                file_name_return = file_name if file_name else f"sticker_{file_id}.webp"
+            else:
+                raise Exception(f"Document info missing: {result}")
+        message_id = result['result'].get('message_id')
+        ret_url = self.get_file_url(file_id)
         print(f"[✓] File uploaded successfully: {file_id}")
-        print(f"[✓] File name: {doc.get('file_name', 'unknown')}")
+        print(f"[✓] File name: {file_name_return}")
         print(f"[✓] File URL: {ret_url}")
-        return file_id, doc.get('file_name', 'unknown'), ret_url
+        print(f"[✓] Message ID: {message_id}")
+        return file_id, file_name_return, ret_url, message_id
 
     def get_file_url(self, file_id):
         url = f'{self.base_url}/getFile?file_id={file_id}'
@@ -60,6 +73,15 @@ class TelegramBot:
         chat_id = latest_message['chat']['id']
         print(f"[✓] Get chat_id: {chat_id}")
         return chat_id
+
+    def delete_message(self, chat_id, message_id):
+        url = f'{self.base_url}/deleteMessage'
+        data = {'chat_id': chat_id, 'message_id': message_id}
+        response = requests.post(url, data=data)
+        result = response.json()
+        if not result.get('ok'):
+            raise Exception(f"Delete message failed: {result}")
+        return True
 
 # Example usage:
 # bot = TelegramBot(TG_BOT_TOKEN)

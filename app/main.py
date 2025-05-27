@@ -29,7 +29,7 @@ app.add_middleware(
 @app.post("/upload")
 async def upload_image(file: UploadFile = File(...)):
     try:
-        file_id, file_name, url = tg_bot.send_file_to_telegram(file_stream=file.file)
+        file_id, file_name, url, message_id = tg_bot.send_file_to_telegram(file.file, file.filename)
         print(f"[INFO] File url: {url}")
         print(f"[INFO] Telegram file_id: {file_id}, file_name: {file_name}")
 
@@ -43,7 +43,7 @@ async def upload_image(file: UploadFile = File(...)):
         file_uuid = str(uuid.uuid4())
 
         custom_url = f"{PROTOCOL}://{CUSTOM_DOMAIN}:{CUSTOM_PORT}/find/{year}/{month}/{day}/{file_uuid}"
-        db.insert_file_record(file_name, url, year, month, day, file_uuid, custom_url)
+        db.insert_file_record(file_name, url, year, month, day, file_uuid, custom_url, file_id, message_id)
 
         return {"message": "Upload successful", "url": url}
     except Exception as e:
@@ -52,7 +52,23 @@ async def upload_image(file: UploadFile = File(...)):
 
 @app.get("/files")
 def get_files():
-    return db.get_all_records()
+    records = db.get_all_records()
+    return [
+        {
+            "id": r[0],
+            "filename": r[1],
+            "url": r[2],
+            "year": r[3],
+            "month": r[4],
+            "day": r[5],
+            "uuid": r[6],
+            "custom_url": r[7],
+            "file_id": r[8],
+            "message_id": r[9],
+            "upload_time": r[10],
+        }
+        for r in records
+    ]
 
 @app.get("/find/{year}/{month}/{day}/{uuid}")
 def find_file_record(year: int, month: int, day: int, uuid: str):
@@ -74,7 +90,27 @@ def find_file_record(year: int, month: int, day: int, uuid: str):
 @app.delete("/files/{file_id}")
 def delete_file(file_id: int):
     try:
+        print(f"[DEBUG] Try to delete file_id: {file_id}")
+        record = db.get_file_record_by_id(file_id)
+        print(f"[DEBUG] DB record: {record}")
+        if not record:
+            print(f"[ERROR] File not found in database: {file_id}")
+            raise HTTPException(status_code=404, detail="File not found in database")
+        tg_file_id = record[8]
+        tg_message_id = record[9]
+        print(f"[DEBUG] tg_file_id: {tg_file_id}, tg_message_id: {tg_message_id}")
+        chat_id = tg_bot.get_chat_id()
+        print(f"[DEBUG] chat_id: {chat_id}")
+        if tg_message_id:
+            try:
+                print(f"[DEBUG] Try to delete telegram message: chat_id={chat_id}, message_id={tg_message_id}")
+                tg_bot.delete_message(chat_id, tg_message_id)
+                print(f"[DEBUG] Telegram message deleted.")
+            except Exception as e:
+                print(f"[WARN] Telegram message delete failed: {e}")
         db.delete_file_record(file_id)
-        return JSONResponse(content={"message": "Deleted"})
+        print(f"[DEBUG] DB record deleted: {file_id}")
+        return JSONResponse(content={"message": "Deleted (db+telegram)"})
     except Exception as e:
+        print(f"[ERROR] Delete failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
