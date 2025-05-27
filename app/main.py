@@ -1,13 +1,12 @@
 import os
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.utils.telegram_utils import TelegramBot
 from app.db.database import Database
 from dotenv import load_dotenv
 from datetime import datetime
 import uuid
-from fastapi.responses import StreamingResponse
-
+from fastapi.responses import StreamingResponse, JSONResponse
 load_dotenv()
 
 TG_BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
@@ -66,3 +65,12 @@ def find_file_record(year: int, month: int, day: int, uuid: str):
     except Exception as e:
         print(f"[ERROR] {e}")
         return {"error": str(e)}
+    
+
+@app.delete("/files/{file_id}")
+def delete_file(file_id: int):
+    try:
+        db.delete_file_record(file_id)
+        return JSONResponse(content={"message": "Deleted"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

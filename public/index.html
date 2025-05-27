@@ -9,10 +9,13 @@
   <div class="container">
     <h1>Telegram Upload</h1>
     <form id="uploadForm">
-      <label for="fileInput" class="file-label">Choose an image to upload:</label>
-      <input type="file" id="fileInput" name="file" required />
+      <div class="file-select-row">
+        <button type="button" id="fileSelectBtn" class="file-select-btn">Choose File</button>
+        <div id="fileSelectBox" class="file-select-box file-unselected">No file selected</div>
+        <button type="button" id="uploadBtn" class="btn upload-btn">Upload</button>
+      </div>
+      <input type="file" id="fileInput" name="file" required style="display:none;" />
       <div id="dropZone" class="drop-zone">Drag and drop files here</div>
-      <button type="button" id="uploadBtn" class="btn">Upload</button>
     </form>
     <div id="result" class="result-box"></div>
     <h2>Uploaded Files</h2>
@@ -26,7 +29,9 @@
           <th>Month</th>
           <th>Day</th>
           <th>UUID</th>
+          <th>Preview</th>
           <th>Upload Time</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
