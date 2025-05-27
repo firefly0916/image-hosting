@@ -17,8 +17,13 @@ class TelegramBot:
         if not file_stream or not hasattr(file_stream, 'read'):
             raise ValueError("Invalid file stream provided.")
 
+        # Extract the original file name from the file stream
+        file_name = getattr(file_stream, 'name', 'unknown')
+        if file_name == 'unknown':
+            raise ValueError("File stream must have a valid 'name' attribute.")
+        print(f"[INFO] File name: {file_name}")
         url = f'{self.base_url}/sendDocument'
-        files = {'document': file_stream}
+        files = {'document': file_stream}  # Include the original file name
         data = {'chat_id': self.get_chat_id()}
         response = requests.post(url, files=files, data=data)
         result = response.json()

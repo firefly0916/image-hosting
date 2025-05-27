@@ -66,6 +66,10 @@ async function fetchFiles() {
         <td><a href="${file[2]}" target="_blank">${file[2]}</a></td>
         <td><img src="${file[2]}" alt="preview" class="table-preview-img preview-clickable" data-full="${file[2]}"></td>
         <td>${file[3]}</td>
+        <td>${file[4]}</td>
+        <td>${file[5]}</td>
+        <td>${file[6]}</td>
+        <td>${file[7]}</td>
         <td><button class="delete-btn" data-id="${file[0]}">Delete</button></td>
       `;
       tableBody.appendChild(row);
