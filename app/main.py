@@ -1,9 +1,12 @@
 import os
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.utils.telegram_utils import TelegramBot
 from app.db.database import Database
 from dotenv import load_dotenv
+from datetime import datetime
+import uuid
+from fastapi.responses import StreamingResponse, JSONResponse
 load_dotenv()
 
 TG_BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
@@ -27,7 +30,16 @@ async def upload_image(file: UploadFile = File(...)):
         print(f"[INFO] File url: {url}")
         print(f"[INFO] Telegram file_id: {file_id}, file_name: {file_name}")
 
-        db.insert_file_record(file_name, url)
+        # Extract current date information
+        now = datetime.now()
+        year = now.year
+        month = now.month
+        day = now.day
+
+        # Generate UUID
+        file_uuid = str(uuid.uuid4())
+
+        db.insert_file_record(file_name, url, year, month, day, file_uuid)
 
         return {"message": "Upload successful", "url": url}
     except Exception as e:
@@ -37,3 +49,28 @@ async def upload_image(file: UploadFile = File(...)):
 @app.get("/files")
 def get_files():
     return db.get_all_records()
+
+@app.get("/find/{year}/{month}/{day}/{uuid}")
+def find_file_record(year: int, month: int, day: int, uuid: str):
+    try:
+        # Fetch the binary content of the file
+        content = db.get_record_content(year, month, day, uuid)
+
+        # Return the content as a streaming response
+        return StreamingResponse(
+            iter([content]),
+            media_type="application/octet-stream",
+            headers={"Content-Disposition": f"attachment; filename={uuid}"}
+        )
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return {"error": str(e)}
+    
+
+@app.delete("/files/{file_id}")
+def delete_file(file_id: int):
+    try:
+        db.delete_file_record(file_id)
+        return JSONResponse(content={"message": "Deleted"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

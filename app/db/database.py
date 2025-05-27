@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import requests
 
 class Database:
     def __init__(self):
@@ -18,6 +19,10 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 filename TEXT NOT NULL,
                 url TEXT NOT NULL,
+                year INTEGER,
+                month INTEGER,
+                day INTEGER,
+                uuid TEXT NOT NULL,
                 upload_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -25,10 +30,11 @@ class Database:
         conn.close()
         print("[INFO] Database initialized.")
 
-    def insert_file_record(self, filename, url):
+    def insert_file_record(self, filename, url, year, month, day, file_uuid):
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
-        c.execute('INSERT INTO files (filename, url) VALUES (?, ?)', (filename, url))
+        c.execute('INSERT INTO files (filename, url, year, month, day, uuid) VALUES (?, ?, ?, ?, ?, ?)', 
+                  (filename, url, year, month, day, file_uuid))
         conn.commit()
         conn.close()
 
@@ -58,3 +64,45 @@ class Database:
         c.execute('DELETE FROM files WHERE id = ?', (record_id,))
         conn.commit()
         conn.close()
+
+    def get_file_record(self, year, month, day, uuid):
+        """
+        Query the database for a file record based on year, month, day, and uuid.
+        :param year: The year of the record.
+        :param month: The month of the record.
+        :param day: The day of the record.
+        :param uuid: The UUID of the record.
+        :return: The file record if found, otherwise None.
+        """
+        print(f"[INFO] Querying record for {year}-{month}-{day} with UUID: {uuid}")
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        query = "SELECT * FROM files WHERE year = ? AND month = ? AND day = ? AND uuid = ?"
+        params = (year, month, day, uuid)
+        c.execute(query, params)
+        record = c.fetchone()
+        print(f"[INFO] Record found: {record}" if record else "[INFO] No record found.")
+        conn.close()
+        return record
+
+    def get_record_content(self, year, month, day, uuid):
+        """
+        Fetch the binary content of the file from the URL stored in the database record.
+        :param year: The year of the record.
+        :param month: The month of the record.
+        :param day: The day of the record.
+        :param uuid: The UUID of the record.
+        :return: The binary content of the file.
+        """
+        record = self.get_file_record(year, month, day, uuid)
+        if not record:
+            raise ValueError("Record not found")
+
+        url = record[2]  # Assuming the URL is the third column in the record
+        print(f"[INFO] Fetching content from URL: {url}")
+        response = requests.get(url)  # Changed from POST to GET
+        print(f"[INFO] Response status code: {response.status_code}")
+        if response.status_code != 200:
+            raise Exception(f"Failed to fetch content from URL: {url}")
+
+        return response.content
