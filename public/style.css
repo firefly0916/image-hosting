@@ -92,3 +92,18 @@ table.files-table {
 .files-table tr:hover {
   background-color: #f1f1f1;
 }
+
+#dropZone {
+  border: 2px dashed #3b82f6;
+  border-radius: 5px;
+  padding: 20px;
+  text-align: center;
+  color: #3b82f6;
+  margin: 10px 0;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#dropZone.dragover {
+  background-color: #e0f2fe;
+}
