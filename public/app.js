@@ -61,16 +61,16 @@ async function fetchFiles() {
     files.forEach(file => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${file[0]}</td>
-        <td>${file[1]}</td>
-        <td><img src="${file[2]}" alt="preview" class="table-preview-img preview-clickable" data-full="${file[2]}"></td>
-        <td>${file[3]}</td>
-        <td>${file[4]}</td>
-        <td>${file[5]}</td>
-        <td>${file[6]}</td>
-        <td>${file[7]}</td>
-        <td>${file[10]}</td>
-        <td><button class="delete-btn" data-id="${file[0]}">Delete</button></td>
+        <td>${file.id}</td>
+        <td>${file.filename}</td>
+        <td><img src="${file.url}" alt="preview" class="table-preview-img preview-clickable" data-full="${file.url}"></td>
+        <td>${file.year}</td>
+        <td>${file.month}</td>
+        <td>${file.day}</td>
+        <td>${file.uuid}</td>
+        <td>${file.custom_url}</td>
+        <td>${file.upload_time}</td>
+        <td><button class="delete-btn" data-id="${file.id}">Delete</button></td>
       `;
       tableBody.appendChild(row);
     });
