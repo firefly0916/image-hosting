@@ -33,3 +33,7 @@ async def upload_image(file: UploadFile = File(...)):
     except Exception as e:
         print(f"[ERROR] {e}")
         return {"error": str(e)}
+
+@app.get("/files")
+def get_files():
+    return db.get_all_records()

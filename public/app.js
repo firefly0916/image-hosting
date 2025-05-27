@@ -28,11 +28,11 @@ document.getElementById("uploadBtn").addEventListener("click", async function (e
     if (result.url) {
       resultDiv.innerHTML = `<p>上传成功！ <a href="${result.url}" target="_blank">查看图片</a></p>`;
       // 展示原始 URL
-      if (result.original_url) {
+      
       const originalUrlP = document.createElement("p");
-      originalUrlP.innerHTML = `原始图片地址：<a href="${result.original_url}" target="_blank">${result.original_url}</a>`;
+      originalUrlP.innerHTML = `原始图片地址：<a href="${result.url}" target="_blank">${result.url}</a>`;
       resultDiv.appendChild(originalUrlP);
-      }
+      
       const imgPreview = document.createElement("img");
       imgPreview.src = result.url;
       imgPreview.alt = "上传图片预览";
@@ -47,5 +47,33 @@ document.getElementById("uploadBtn").addEventListener("click", async function (e
     loadingIndicator.remove();
   }
 });
+
+async function fetchFiles() {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/files");
+    if (!response.ok) {
+      throw new Error("Failed to fetch files");
+    }
+    const files = await response.json();
+    const tableBody = document.querySelector("#filesTable tbody");
+    tableBody.innerHTML = ""; // Clear existing rows
+
+    files.forEach(file => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${file[0]}</td>
+        <td>${file[1]}</td>
+        <td><a href="${file[2]}" target="_blank">${file[2]}</a></td>
+        <td>${file[3]}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  } catch (error) {
+    console.error("Error fetching files:", error);
+  }
+}
+
+// Fetch files on page load
+document.addEventListener("DOMContentLoaded", fetchFiles);
 
 console.log("app.js 已加载");
