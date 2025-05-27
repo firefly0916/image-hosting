@@ -24,11 +24,11 @@ app.add_middleware(
 @app.post("/upload")
 async def upload_image(file: UploadFile = File(...)):
     try:
-        file_id, file_name, url = tg_bot.send_file_to_telegram(file_stream=file.file)
+        file_id, file_name, url, message_id = tg_bot.send_file_to_telegram(file_stream=file.file)
         print(f"[INFO] File url: {url}")
-        print(f"[INFO] Telegram file_id: {file_id}, file_name: {file_name}")
+        print(f"[INFO] Telegram file_id: {file_id}, file_name: {file_name}, message_id: {message_id}")
 
-        db.insert_file_record(file_name, url)
+        db.insert_file_record(file_name, url, file_id, message_id)
 
         return {"message": "Upload successful", "url": url}
     except Exception as e:
@@ -42,7 +42,19 @@ def get_files():
 @app.delete("/files/{file_id}")
 def delete_file(file_id: int):
     try:
+        record = db.get_file_record(file_id)
+        if not record:
+            raise HTTPException(status_code=404, detail="File not found in database")
+        # record: (id, filename, url, file_id, message_id, upload_time)
+        tg_file_id = record[3]
+        tg_message_id = record[4]
+        chat_id = tg_bot.get_chat_id()
+        if tg_message_id:
+            try:
+                tg_bot.delete_message(chat_id, tg_message_id)
+            except Exception as e:
+                print(f"[WARN] Telegram message delete failed: {e}")
         db.delete_file_record(file_id)
-        return JSONResponse(content={"message": "Deleted"})
+        return JSONResponse(content={"message": "Deleted (db+telegram)"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -20,7 +20,7 @@ document.getElementById("uploadBtn").addEventListener("click", async function (e
     });
 
     if (!response.ok) {
-      throw new Error("网络请求失败");
+      throw new Error("Network request failed");
     }
 
     const result = await response.json();
@@ -30,19 +30,19 @@ document.getElementById("uploadBtn").addEventListener("click", async function (e
       // Show original URL
 
       const originalUrlP = document.createElement("p");
-      originalUrlP.innerHTML = `原始图片地址：<a href="${result.url}" target="_blank">${result.url}</a>`;
+      originalUrlP.innerHTML = `Original image URL: <a href="${result.url}" target="_blank">${result.url}</a>`;
       resultDiv.appendChild(originalUrlP);
       
       const imgPreview = document.createElement("img");
       imgPreview.src = result.url;
-      imgPreview.alt = "上传图片预览";
+      imgPreview.alt = "Uploaded image preview";
       imgPreview.className = "preview";
       resultDiv.appendChild(imgPreview);
     } else {
-      resultDiv.textContent = "上传失败。请再试一次。";
+      resultDiv.textContent = "Upload failed. Please try again.";
     }
   } catch (error) {
-    resultDiv.textContent = `错误: ${error.message}`;
+    resultDiv.textContent = `Error: ${error.message}`;
   } finally {
     loadingIndicator.remove();
   }

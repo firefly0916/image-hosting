@@ -10,9 +10,9 @@ class TelegramBot:
 
     def send_file_to_telegram(self, file_stream) -> tuple:
         """
-        Upload a file to Telegram and return its file_id, file name, and URL.
+        Upload a file to Telegram and return its file_id, file name, file_url, and message_id.
         :param file_stream: A file-like object (e.g., opened in binary mode).
-        :return: A tuple containing (file_id, file_name, file_url).
+        :return: A tuple containing (file_id, file_name, file_url, message_id).
         """
         if not file_stream or not hasattr(file_stream, 'read'):
             raise ValueError("Invalid file stream provided.")
@@ -28,11 +28,13 @@ class TelegramBot:
         if not doc:
             raise Exception(f"Document info missing: {result}")
         file_id = doc['file_id']
+        message_id = result['result'].get('message_id')
         ret_url = self.get_file_url(file_id)  # Ensure the file is uploaded and we can get its URL
         print(f"[✓] File uploaded successfully: {file_id}")
         print(f"[✓] File name: {doc.get('file_name', 'unknown')}")
         print(f"[✓] File URL: {ret_url}")
-        return file_id, doc.get('file_name', 'unknown'), ret_url
+        print(f"[✓] Message ID: {message_id}")
+        return file_id, doc.get('file_name', 'unknown'), ret_url, message_id
 
     def get_file_url(self, file_id):
         url = f'{self.base_url}/getFile?file_id={file_id}'
@@ -55,6 +57,15 @@ class TelegramBot:
         chat_id = latest_message['chat']['id']
         print(f"[✓] Get chat_id: {chat_id}")
         return chat_id
+
+    def delete_message(self, chat_id, message_id):
+        url = f'{self.base_url}/deleteMessage'
+        data = {'chat_id': chat_id, 'message_id': message_id}
+        response = requests.post(url, data=data)
+        result = response.json()
+        if not result.get('ok'):
+            raise Exception(f"Delete message failed: {result}")
+        return True
 
 # Example usage:
 # bot = TelegramBot(TG_BOT_TOKEN)
