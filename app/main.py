@@ -12,7 +12,9 @@ app = FastAPI()
 
 load_dotenv()
 TG_BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
+PROTOCOL = os.getenv('PROTOCOL', 'http')
 CUSTOM_DOMAIN = os.getenv('CUSTOM_DOMAIN', 'localhost')
+CUSTOM_PORT = os.getenv('CUSTOM_PORT', '8000')
 
 tg_bot = TelegramBot(TG_BOT_TOKEN)
 db = Database()
@@ -40,9 +42,8 @@ async def upload_image(file: UploadFile = File(...)):
         # Generate UUID
         file_uuid = str(uuid.uuid4())
 
-        custom_url = f"https://example.com/files/{year}/{month}/{day}/{file_uuid}"
-
-        db.insert_file_record(file_name, url, year, month, day, file_uuid, )
+        custom_url = f"{PROTOCOL}://{CUSTOM_DOMAIN}:{CUSTOM_PORT}/find/{year}/{month}/{day}/{file_uuid}"
+        db.insert_file_record(file_name, url, year, month, day, file_uuid, custom_url)
 
         return {"message": "Upload successful", "url": url}
     except Exception as e:
