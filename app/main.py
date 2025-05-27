@@ -52,7 +52,23 @@ async def upload_image(file: UploadFile = File(...)):
 
 @app.get("/files")
 def get_files():
-    return db.get_all_records()
+    records = db.get_all_records()
+    return [
+        {
+            "id": r[0],
+            "filename": r[1],
+            "url": r[2],
+            "year": r[3],
+            "month": r[4],
+            "day": r[5],
+            "uuid": r[6],
+            "custom_url": r[7],
+            "file_id": r[8],
+            "message_id": r[9],
+            "upload_time": r[10],
+        }
+        for r in records
+    ]
 
 @app.get("/find/{year}/{month}/{day}/{uuid}")
 def find_file_record(year: int, month: int, day: int, uuid: str):
