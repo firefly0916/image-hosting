@@ -42,7 +42,7 @@ async def upload_image(file: UploadFile = File(...)):
 
         custom_url = f"https://example.com/files/{year}/{month}/{day}/{file_uuid}"
 
-        db.insert_file_record(file_name, url, year, month, day, file_uuid, )
+        db.insert_file_record(file_name, url, year, month, day, file_uuid, custom_url, file_id, message_id)
 
         return {"message": "Upload successful", "url": url}
     except Exception as e:
