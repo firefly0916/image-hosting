@@ -1,20 +1,23 @@
+// ====== Config custom_url ======
+const custom_url = "http://127.0.0.1:8000";
+
 document.getElementById("uploadBtn").addEventListener("click", async function (e) {
-  e.preventDefault(); // 阻止按钮的默认行为
+  e.preventDefault(); // Prevent default button behavior
 
   const form = document.getElementById("uploadForm");
   const formData = new FormData(form);
   const resultDiv = document.getElementById("result");
 
-  // 清除之前的结果
+  // Clear previous results
   resultDiv.innerHTML = "";
 
-  // 显示加载指示器
+  // Show loading indicator
   const loadingIndicator = document.createElement("p");
   loadingIndicator.textContent = "Uploading ...";
   resultDiv.appendChild(loadingIndicator);
 
   try {
-    const response = await fetch("http://127.0.0.1:8000/upload", {
+    const response = await fetch(`${custom_url}/upload`, {
       method: "POST",
       body: formData
     });
@@ -50,7 +53,7 @@ document.getElementById("uploadBtn").addEventListener("click", async function (e
 
 async function fetchFiles() {
   try {
-    const response = await fetch("http://127.0.0.1:8000/files");
+    const response = await fetch(`${custom_url}/files`);
     if (!response.ok) {
       throw new Error("Failed to fetch files");
     }
@@ -63,7 +66,7 @@ async function fetchFiles() {
       row.innerHTML = `
         <td>${file.id}</td>
         <td>${file.filename}</td>
-        <td><img src="${file.url}" alt="preview" class="table-preview-img preview-clickable" data-full="${file.url}"></td>
+        <td><img src="${file.custom_url}" alt="preview" class="table-preview-img preview-clickable" data-full="${file.custom_url}"></td>
         <td>${file.year}</td>
         <td>${file.month}</td>
         <td>${file.day}</td>
@@ -74,7 +77,7 @@ async function fetchFiles() {
       `;
       tableBody.appendChild(row);
     });
-    // 绑定图片点击事件，弹窗显示大图
+    // Bind image click event to show full image in overlay
     document.querySelectorAll('.preview-clickable').forEach(img => {
       img.addEventListener('click', function() {
         const overlay = document.createElement('div');
@@ -85,12 +88,12 @@ async function fetchFiles() {
         overlay.querySelector('.img-overlay-bg').onclick = () => overlay.remove();
       });
     });
-    // 绑定删除事件
+    // Bind delete event
     document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', async function() {
         const id = this.getAttribute('data-id');
         if (confirm('Are you sure you want to delete this file?')) {
-          const res = await fetch(`http://127.0.0.1:8000/files/${id}`, { method: 'DELETE' });
+          const res = await fetch(`${custom_url}/files/${id}`, { method: 'DELETE' });
           if (res.ok) fetchFiles();
           else alert('Delete failed');
         }
@@ -104,7 +107,7 @@ async function fetchFiles() {
 // Fetch files on page load
 document.addEventListener("DOMContentLoaded", fetchFiles);
 
-// 文件选择自定义逻辑
+// File selection custom logic
 const fileInput = document.getElementById("fileInput");
 const fileSelectBox = document.getElementById("fileSelectBox");
 const fileSelectBtn = document.getElementById("fileSelectBtn");
@@ -128,7 +131,7 @@ fileInput.addEventListener("change", () => {
   }
 });
 
-// 拖拽到dropZone时也要同步fileSelectBox
+// Dragging over dropZone should also sync fileSelectBox
 const dropZone = document.getElementById("dropZone");
 dropZone.addEventListener("dragover", (e) => {
   e.preventDefault();
@@ -145,10 +148,10 @@ dropZone.addEventListener("drop", (e) => {
   dropZone.classList.remove("dragover");
   if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
     fileInput.files = e.dataTransfer.files;
-    // 触发change事件，更新UI
+    // Trigger change event to update UI
     const event = new Event('change', { bubbles: true });
     fileInput.dispatchEvent(event);
   }
 });
 
-console.log("app.js 已加载");
+console.log("app.js loaded");

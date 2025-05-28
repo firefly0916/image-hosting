@@ -62,15 +62,9 @@ class TelegramBot:
         return f'https://api.telegram.org/file/bot{self.bot_token}/{file_path}'
 
     def get_chat_id(self):
-        url = f'{self.base_url}/getUpdates'
-        response = requests.get(url)
-        result = response.json()
-
-        if not result.get('ok') or not result.get('result'):
-            raise Exception(f"[x] Get chat_id fail: {result}")
-
-        latest_message = result['result'][-1]['message']
-        chat_id = latest_message['chat']['id']
+        chat_id = os.getenv('TG_CHAT_ID')
+        if not chat_id:
+            raise ValueError("TG_CHAT_ID is not set in environment variables.")
         print(f"[✓] Get chat_id: {chat_id}")
         return chat_id
 
