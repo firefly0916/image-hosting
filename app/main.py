@@ -16,12 +16,17 @@ PROTOCOL = os.getenv('PROTOCOL', 'http')
 CUSTOM_DOMAIN = os.getenv('CUSTOM_DOMAIN', 'localhost')
 CUSTOM_PORT = os.getenv('CUSTOM_PORT', '8000')
 
+origins = [
+    f"{PROTOCOL}://{CUSTOM_DOMAIN}",
+    f"{PROTOCOL}://{CUSTOM_DOMAIN}:{CUSTOM_PORT}"
+]
+
 tg_bot = TelegramBot(TG_BOT_TOKEN)
 db = Database()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 生产环境请改成具体前端地址
+    allow_origins=origins, 
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -90,26 +95,19 @@ def find_file_record(year: int, month: int, day: int, uuid: str):
 @app.delete("/files/{file_id}")
 def delete_file(file_id: int):
     try:
-        print(f"[DEBUG] Try to delete file_id: {file_id}")
         record = db.get_file_record_by_id(file_id)
-        print(f"[DEBUG] DB record: {record}")
         if not record:
             print(f"[ERROR] File not found in database: {file_id}")
             raise HTTPException(status_code=404, detail="File not found in database")
         tg_file_id = record[8]
         tg_message_id = record[9]
-        print(f"[DEBUG] tg_file_id: {tg_file_id}, tg_message_id: {tg_message_id}")
         chat_id = tg_bot.get_chat_id()
-        print(f"[DEBUG] chat_id: {chat_id}")
         if tg_message_id:
             try:
-                print(f"[DEBUG] Try to delete telegram message: chat_id={chat_id}, message_id={tg_message_id}")
                 tg_bot.delete_message(chat_id, tg_message_id)
-                print(f"[DEBUG] Telegram message deleted.")
             except Exception as e:
                 print(f"[WARN] Telegram message delete failed: {e}")
         db.delete_file_record(file_id)
-        print(f"[DEBUG] DB record deleted: {file_id}")
         return JSONResponse(content={"message": "Deleted (db+telegram)"})
     except Exception as e:
         print(f"[ERROR] Delete failed: {e}")
