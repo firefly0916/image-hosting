@@ -1,5 +1,7 @@
-// ====== Config custom_url ======
-const custom_url = "http://127.0.0.1:8000";
+// ====== Config custom_domain ======
+// const custom_domain = "http://127.0.0.1:8000";
+
+const api_base = window.location.origin;
 
 document.getElementById("uploadBtn").addEventListener("click", async function (e) {
   e.preventDefault(); // Prevent default button behavior
@@ -17,7 +19,7 @@ document.getElementById("uploadBtn").addEventListener("click", async function (e
   resultDiv.appendChild(loadingIndicator);
 
   try {
-    const response = await fetch(`${custom_url}/upload`, {
+    const response = await fetch(`${api_base}/upload`, {
       method: "POST",
       body: formData
     });
@@ -53,7 +55,7 @@ document.getElementById("uploadBtn").addEventListener("click", async function (e
 
 async function fetchFiles() {
   try {
-    const response = await fetch(`${custom_url}/files`);
+    const response = await fetch(`${api_base}/files`);
     if (!response.ok) {
       throw new Error("Failed to fetch files");
     }
@@ -62,16 +64,18 @@ async function fetchFiles() {
     tableBody.innerHTML = ""; // Clear existing rows
 
     files.forEach(file => {
+      // 动态生成 custom_url，始终用当前域名
+      const custom_url = `${window.location.origin}/find/${file.year}/${file.month}/${file.day}/${file.uuid}`;
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${file.id}</td>
         <td>${file.filename}</td>
-        <td><img src="${file.custom_url}" alt="preview" class="table-preview-img preview-clickable" data-full="${file.custom_url}"></td>
+        <td><img src="${custom_url}" alt="preview" class="table-preview-img preview-clickable" data-full="${custom_url}"></td>
         <td>${file.year}</td>
         <td>${file.month}</td>
         <td>${file.day}</td>
         <td>${file.uuid}</td>
-        <td>${file.custom_url}</td>
+        <td>${custom_url}</td>
         <td>${file.upload_time}</td>
         <td><button class="delete-btn" data-id="${file.id}">Delete</button></td>
       `;
@@ -93,7 +97,7 @@ async function fetchFiles() {
       btn.addEventListener('click', async function() {
         const id = this.getAttribute('data-id');
         if (confirm('Are you sure you want to delete this file?')) {
-          const res = await fetch(`${custom_url}/files/${id}`, { method: 'DELETE' });
+          const res = await fetch(`${api_base}/files/${id}`, { method: 'DELETE' });
           if (res.ok) fetchFiles();
           else alert('Delete failed');
         }

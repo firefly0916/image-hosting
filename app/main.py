@@ -47,8 +47,7 @@ async def upload_image(file: UploadFile = File(...)):
         # Generate UUID
         file_uuid = str(uuid.uuid4())
 
-        custom_url = f"{PROTOCOL}://{CUSTOM_DOMAIN}:{CUSTOM_PORT}/find/{year}/{month}/{day}/{file_uuid}"
-        db.insert_file_record(file_name, url, year, month, day, file_uuid, custom_url, file_id, message_id)
+        db.insert_file_record(file_name, url, year, month, day, file_uuid, file_id, message_id)
 
         return {"message": "Upload successful", "url": url}
     except Exception as e:
@@ -67,10 +66,10 @@ def get_files():
             "month": r[4],
             "day": r[5],
             "uuid": r[6],
-            "custom_url": r[7],
-            "file_id": r[8],
-            "message_id": r[9],
-            "upload_time": r[10],
+            # "custom_url": r[7],  # 已移除
+            "file_id": r[7],
+            "message_id": r[8],
+            "upload_time": r[9],
         }
         for r in records
     ]
@@ -99,8 +98,8 @@ def delete_file(file_id: int):
         if not record:
             print(f"[ERROR] File not found in database: {file_id}")
             raise HTTPException(status_code=404, detail="File not found in database")
-        tg_file_id = record[8]
-        tg_message_id = record[9]
+        tg_file_id = record[7]
+        tg_message_id = record[8]
         chat_id = tg_bot.get_chat_id()
         if tg_message_id:
             try:
