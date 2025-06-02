@@ -3,6 +3,8 @@ services:
   img-hosting:
     image: hermitally/img-hosting:latest
     container_name: img-hosting-container
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     volumes:
