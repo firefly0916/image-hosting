@@ -1,5 +1,9 @@
 FROM python:3.13.3-slim
 
+RUN apt-get update && apt-get install -y bash
+
+SHELL ["/bin/bash", "-c"]
+
 LABEL maintainer="autumn.dawn.hope@gmail.com"
 # Set the working directory
 WORKDIR /app
