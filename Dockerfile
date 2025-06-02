@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y pipx
 
 RUN pipx install uv
 
+RUN pipx ensurepath
+
 RUN uv venv
 
 RUN uv sync
