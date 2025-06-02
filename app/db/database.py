@@ -23,7 +23,6 @@ class Database:
                 month INTEGER,
                 day INTEGER,
                 uuid TEXT NOT NULL,
-                custom_url TEXT,
                 file_id TEXT,
                 message_id TEXT,
                 upload_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -33,11 +32,11 @@ class Database:
         conn.close()
         print("[INFO] Database initialized.")
 
-    def insert_file_record(self, filename, url, year, month, day, file_uuid, custom_url, file_id=None, message_id=None):
+    def insert_file_record(self, filename, url, year, month, day, file_uuid, file_id=None, message_id=None):
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
-        c.execute('INSERT INTO files (filename, url, year, month, day, uuid, custom_url, file_id, message_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                  (filename, url, year, month, day, file_uuid, custom_url, file_id, message_id))
+        c.execute('INSERT INTO files (filename, url, year, month, day, uuid, file_id, message_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+                  (filename, url, year, month, day, file_uuid, file_id, message_id))
         conn.commit()
         conn.close()
 
