@@ -16,9 +16,7 @@ RUN apt-get update && apt-get install -y pipx
 
 RUN pipx install uv
 
-RUN pipx ensurepath
-
-RUN source /root/.bashrc
+RUN echo "export PATH=$PATH:/root/.local/bin" >> /root/.bashrc && source /root/.bashrc
 
 RUN uv venv
 
