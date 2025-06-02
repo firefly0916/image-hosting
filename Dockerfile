@@ -16,11 +16,9 @@ RUN apt-get update && apt-get install -y pipx
 
 RUN pipx install uv
 
-RUN echo "export PATH=$PATH:/root/.local/bin" >> /root/.bashrc && source /root/.bashrc
+RUN /root/.local/bin/uv venv
 
-RUN uv venv
-
-RUN uv sync
+RUN /root/.local/bin/uv sync
 
 # Expose the port the app runs on
 EXPOSE 8000
