@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  img-hosting:
+    image: hermitally/img-hosting:latest
+    container_name: img-hosting-container
+    ports:
+      - "8000:8000"
+    volumes:
+      - img-hosting-data:/app/db
+    restart: unless-stopped
+
+volumes:
+  img-hosting-data:
