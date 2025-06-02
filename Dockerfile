@@ -14,6 +14,8 @@ RUN pipx install uv
 
 RUN pipx ensurepath
 
+RUN source /root/.bashrc
+
 RUN uv venv
 
 RUN uv sync
